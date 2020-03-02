@@ -1,14 +1,15 @@
 <?php
 /* 
 Plugin Name: Azad Latest Posts
-Description: Description will go here...
-Plugin URi: gittechs.com/plugin/azad-nice-scroll
+Description: This plugin will create an widget and the widget will show the latest posts in any widget area that could be selected.
+Plugin URi: gittechs.com/plugin/azad-latest-posts
 Author: Md. Abul Kalam Azad
 Author URI: gittechs.com/author
 Author Email: webdevazad@gmail.com
-Version: 0.0.0.1
+Version: 1.0.0.
 Text Domain: azad-latest-posts
-*/ 
+*/
+
 // DENY IF DIRECTLY ACCESSED
 defined('ABSPATH') || exit;
 

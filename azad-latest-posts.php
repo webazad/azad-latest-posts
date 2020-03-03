@@ -1,7 +1,7 @@
 <?php
 /* 
 Plugin Name: Azad Latest Posts
-Description: This plugin will create an widget and the widget will show the latest posts in any widget area that could be selected.
+Description: This plugin will create an widget to show the latest posts in any widget area selected.
 Plugin URi: gittechs.com/plugin/azad-latest-posts
 Author: Md. Abul Kalam Azad
 Author URI: gittechs.com/author
@@ -13,14 +13,23 @@ Text Domain: azad-latest-posts
 // DENY IF DIRECTLY ACCESSED
 defined('ABSPATH') || exit;
 
-if(! function_exists('azad_latest_posts_cat_list')){
+require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+$plugin_data = get_plugin_data( __FILE__ );
+
+define( 'AZAD_LATEST_POSTS_NAME', $plugin_data['Name'] );
+define( 'AZAD_LATEST_POSTS_URL', plugin_dir_url( __FILE__ ) );
+define( 'AZAD_LATEST_POSTS_DITH_PATH', plugin_dir_path( __FILE__ ) );
+define( 'AZAD_LATEST_POSTS_BASE_NAME', plugin_basename( __FILE__ ) );
+define( 'AZAD_LATEST_POSTS_VERSION', $plugin_data['Version'] );
+
+if(! function_exists( 'azad_latest_posts_cat_list' )){
     function azad_latest_posts_cat_list(){
         $cat_lists = get_categories();
         $all_cat_list = array(
-            ''=>'All Category'
+            '' => 'All Category'
         );
-        foreach($cat_lists as $cat_list){
-            $all_cat_list[$cat_list->cat_name]= $cat_list->slug;
+        foreach( $cat_lists as $cat_list ){
+            $all_cat_list[$cat_list->slug] = $cat_list->cat_name;
         }
         return $all_cat_list;
     }
@@ -35,24 +44,24 @@ if(! class_exists('Azad_Latest_Posts')){
         public function __construct(){
             parent::__construct(
                 'azad_latest_posts',
-                esc_html__('Azad Latest Posts','azad-latest-posts'),
+                esc_html__( 'Azad Latest Posts', AZAD_LATEST_POSTS_NAME ),
                 array(
                     //'classname'=>'azad-widget',
-                    'description'=>esc_html__('To display latest posts.','azad-latest-posts')
+                    'description' => esc_html__( 'To display latest posts.', AZAD_LATEST_POSTS_NAME )
                 )
             );
-            add_action('wp_enqueue_scripts',array($this,'azad_post_scripts'));
+            add_action( 'wp_enqueue_scripts', array( $this, 'azad_post_scripts' ) );
         }
         public function azad_post_scripts(){
-            wp_register_style( 'azad-latest-posts-style', plugin_dir_url(__FILE__). 'assets/css/style.css' ,null,null,'all' );
-            wp_enqueue_style('azad-latest-posts-style' );
+            wp_register_style( 'azad-latest-posts-style', plugin_dir_url(__FILE__). 'assets/css/main-style.min.css', null, AZAD_LATEST_POSTS_VERSION, 'all' );
+            wp_enqueue_style( 'azad-latest-posts-style' );
         }
         public function widget($args,$instance){
             extract($args);
 
-            $title = apply_filters('widget_title',$instance['title']);
-            $count = $instance['count'];
-            $category = $instance['category'];
+            $title      = apply_filters( 'azad_latest_posts_title', $instance['title'] );
+            $category   = $instance['category'];
+            $count      = $instance['count'];
             
             echo $before_widget;
 
@@ -76,7 +85,7 @@ if(! class_exists('Azad_Latest_Posts')){
                         }
                         
                         $output .= '<div class="azad-media-body">';
-                        $output .= '<h3><a href="' . get_permalink() . '">'.get_the_title().'</a></h3>';
+                        $output .= '<h3><a href="' . get_permalink() . '">' . get_the_title() . '</a></h3>';
                         $output .= '</div>';
                     $output .= '</div>';
                 endforeach;            
@@ -88,13 +97,13 @@ if(! class_exists('Azad_Latest_Posts')){
             
             echo $after_widget;
         }
-        public function form($instance){ 
+        public function form( $instance ){ 
             $defaults = array(
-                'title' => 'Latest Posts',
-                'count' => 5,
-                'category' => 'uncategorized'
+                'title'     => 'Latest Posts',
+                'count'     => 5,
+                'category'  => 'uncategorized'
             );
-            $instance = wp_parse_args((array)$instance,$defaults);
+            $instance = wp_parse_args( (array)$instance, $defaults );
         ?>
             <p>
                 <label for="<?php echo $this->get_field_id('title'); ?>">Widget Title</label>
@@ -102,10 +111,9 @@ if(! class_exists('Azad_Latest_Posts')){
             </p>
             <p>
                 <label for="<?php echo $this->get_field_id('category'); ?>"><?php _e('Category','azad-latest-posts')?></label>
-                <select id="<?php echo $this->get_field_id('category'); ?>" id="<?php echo $this->get_field_name('category'); ?>">
+                <select id="<?php echo $this->get_field_id('category'); ?>" name="<?php echo $this->get_field_name('category'); ?>">
                     <?php
                     $options = azad_latest_posts_cat_list();
-                    
                     if(isset($instance['category'])){
                         $category = $instance['category'];
                     }
@@ -127,10 +135,10 @@ if(! class_exists('Azad_Latest_Posts')){
             </p>
         <?php 
         }
-        public function update($new_instance,$old_instance){
+        public function update( $new_instance, $old_instance ){
             $instance = array();
             $instance['title'] = strip_tags($new_instance['title']);
-            $instance['category'] = strip_tags($new_instance['caategory']);
+            $instance['category'] = strip_tags($new_instance['category']);
             $instance['count'] = strip_tags($new_instance['count']);
             return $instance;
         }
